@@ -1,6 +1,6 @@
 package com.hospital.management.prescription.controller;
 
-import com.hospital.management.prescription.entity.Prescription;
+import com.hospital.management.prescription.dto.*;
 import com.hospital.management.prescription.service.PrescriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,55 +11,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/prescriptions")
 @CrossOrigin("*")
-
 public class PrescriptionController {
 
     @Autowired
     private PrescriptionService prescriptionService;
 
-    // Save Prescription
     @PostMapping
-    public Prescription savePrescription(
-            @RequestBody Prescription prescription) {
-
-        return prescriptionService
-                .savePrescription(prescription);
+    public PrescriptionResponseDTO save(@RequestBody PrescriptionRequestDTO dto) {
+        return prescriptionService.savePrescription(dto);
     }
 
-    // Get All Prescriptions
     @GetMapping
-    public List<Prescription> getAllPrescriptions() {
-
-        return prescriptionService
-                .getAllPrescriptions();
+    public List<PrescriptionResponseDTO> getAll() {
+        return prescriptionService.getAllPrescriptions();
     }
 
-    // Get Prescription By Id
     @GetMapping("/{id}")
-    public Prescription getPrescriptionById(
-            @PathVariable Long id) {
-
-        return prescriptionService
-                .getPrescriptionById(id);
+    public PrescriptionResponseDTO getById(@PathVariable Long id) {
+        return prescriptionService.getPrescriptionById(id);
     }
 
-    // Update Prescription
     @PutMapping("/{id}")
-    public Prescription updatePrescription(
+    public PrescriptionResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Prescription prescription) {
+            @RequestBody PrescriptionRequestDTO dto) {
 
-        return prescriptionService
-                .updatePrescription(id, prescription);
+        return prescriptionService.updatePrescription(id, dto);
     }
 
-    // Delete Prescription
     @DeleteMapping("/{id}")
-    public String deletePrescription(
-            @PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         prescriptionService.deletePrescription(id);
-
         return "Prescription deleted successfully";
     }
 }

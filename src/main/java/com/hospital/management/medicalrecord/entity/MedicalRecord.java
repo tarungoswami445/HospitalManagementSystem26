@@ -3,9 +3,7 @@ package com.hospital.management.medicalrecord.entity;
 import com.hospital.management.patient.entity.Patient;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +12,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class MedicalRecord {
 
     @Id
@@ -22,9 +19,7 @@ public class MedicalRecord {
     private Long id;
 
     private String diagnosis;
-
     private String treatment;
-
     private String allergies;
 
     private LocalDateTime createdAt;

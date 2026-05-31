@@ -1,21 +1,19 @@
 package com.hospital.management.medicalrecord.service;
 
-import com.hospital.management.medicalrecord.entity.MedicalRecord;
+import com.hospital.management.medicalrecord.dto.MedicalRecordRequestDTO;
+import com.hospital.management.medicalrecord.dto.MedicalRecordResponseDTO;
 
 import java.util.List;
 
 public interface MedicalRecordService {
 
-    MedicalRecord saveMedicalRecord(
-            MedicalRecord medicalRecord);
+    MedicalRecordResponseDTO saveMedicalRecord(MedicalRecordRequestDTO dto);
 
-    List<MedicalRecord> getAllMedicalRecords();
+    List<MedicalRecordResponseDTO> getAllMedicalRecords();
 
-    MedicalRecord getMedicalRecordById(Long id);
+    MedicalRecordResponseDTO getMedicalRecordById(Long id);
 
-    MedicalRecord updateMedicalRecord(
-            Long id,
-            MedicalRecord medicalRecord);
+    MedicalRecordResponseDTO updateMedicalRecord(Long id, MedicalRecordRequestDTO dto);
 
     void deleteMedicalRecord(Long id);
 }

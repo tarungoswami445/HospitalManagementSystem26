@@ -1,18 +1,19 @@
 package com.hospital.management.patient.service;
 
-import com.hospital.management.patient.entity.Patient;
+import com.hospital.management.patient.dto.PatientRequestDTO;
+import com.hospital.management.patient.dto.PatientResponseDTO;
 
 import java.util.List;
 
 public interface PatientService {
 
-    Patient savePatient(Patient patient);
+    PatientResponseDTO savePatient(PatientRequestDTO dto);
 
-    List<Patient> getAllPatients();
+    List<PatientResponseDTO> getAllPatients();
 
-    Patient getPatientById(Long id);
+    PatientResponseDTO getPatientById(Long id);
 
-    Patient updatePatient(Long id, Patient patient);
+    PatientResponseDTO updatePatient(Long id, PatientRequestDTO dto);
 
     void deletePatient(Long id);
 }

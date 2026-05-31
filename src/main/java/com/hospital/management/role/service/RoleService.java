@@ -1,7 +1,6 @@
 package com.hospital.management.role.service;
 
 import com.hospital.management.role.entity.Role;
-
 import java.util.List;
 
 public interface RoleService {

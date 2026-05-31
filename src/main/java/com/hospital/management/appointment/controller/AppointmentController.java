@@ -1,6 +1,7 @@
 package com.hospital.management.appointment.controller;
 
-import com.hospital.management.appointment.entity.Appointment;
+import com.hospital.management.appointment.dto.AppointmentRequestDTO;
+import com.hospital.management.appointment.dto.AppointmentResponseDTO;
 import com.hospital.management.appointment.service.AppointmentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,55 +12,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/appointments")
 @CrossOrigin("*")
-
 public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
 
-    // Save Appointment
     @PostMapping
-    public Appointment saveAppointment(
-            @RequestBody Appointment appointment) {
-
-        return appointmentService
-                .saveAppointment(appointment);
+    public AppointmentResponseDTO save(@RequestBody AppointmentRequestDTO dto) {
+        return appointmentService.saveAppointment(dto);
     }
 
-    // Get All Appointments
     @GetMapping
-    public List<Appointment> getAllAppointments() {
-
-        return appointmentService
-                .getAllAppointments();
+    public List<AppointmentResponseDTO> getAll() {
+        return appointmentService.getAllAppointments();
     }
 
-    // Get Appointment By Id
     @GetMapping("/{id}")
-    public Appointment getAppointmentById(
-            @PathVariable Long id) {
-
-        return appointmentService
-                .getAppointmentById(id);
+    public AppointmentResponseDTO getById(@PathVariable Long id) {
+        return appointmentService.getAppointmentById(id);
     }
 
-    // Update Appointment
     @PutMapping("/{id}")
-    public Appointment updateAppointment(
+    public AppointmentResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Appointment appointment) {
+            @RequestBody AppointmentRequestDTO dto) {
 
-        return appointmentService
-                .updateAppointment(id, appointment);
+        return appointmentService.updateAppointment(id, dto);
     }
 
-    // Delete Appointment
     @DeleteMapping("/{id}")
-    public String deleteAppointment(
-            @PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         appointmentService.deleteAppointment(id);
-
         return "Appointment deleted successfully";
     }
 }

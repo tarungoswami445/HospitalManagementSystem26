@@ -1,16 +1,13 @@
 package com.hospital.management.department.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "departments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Department {
 
     @Id

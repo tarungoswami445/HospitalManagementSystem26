@@ -6,9 +6,7 @@ import com.hospital.management.room.entity.Room;
 import com.hospital.management.bed.entity.Bed;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -17,7 +15,6 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Admission {
 
     @Id
@@ -28,7 +25,8 @@ public class Admission {
 
     private LocalDate dischargeDate;
 
-    private String status;
+    private String status; 
+    // ADMITTED / DISCHARGED / TRANSFERRED
 
     @ManyToOne
     @JoinColumn(name = "patient_id")

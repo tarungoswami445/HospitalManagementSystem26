@@ -1,14 +1,16 @@
 package com.hospital.management.emergency.service;
-
-import com.hospital.management.emergency.entity.EmergencyRequest;
-
 import java.util.List;
+
+import com.hospital.management.emergency.dto.EmergencyRequestDTO;
+import com.hospital.management.emergency.dto.EmergencyResponseDTO;
 
 public interface EmergencyRequestService {
 
-    EmergencyRequest saveEmergencyRequest(
-            EmergencyRequest request
-    );
+    EmergencyResponseDTO saveEmergencyRequest(EmergencyRequestDTO dto);
 
-    List<EmergencyRequest> getAllEmergencyRequests();
+    List<EmergencyResponseDTO> getAllEmergencyRequests();
+
+    EmergencyResponseDTO updateEmergencyRequest(Long id, EmergencyRequestDTO dto);
+
+    void deleteEmergencyRequest(Long id);
 }

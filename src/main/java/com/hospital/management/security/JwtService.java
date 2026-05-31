@@ -40,14 +40,24 @@ public class JwtService {
                 .getBody()
                 .getSubject();
     }
+public boolean validateToken(String token, UserDetails userDetails) {
+    final String username = extractUsername(token);
 
-    public boolean validateToken(
-            String token,
-            UserDetails userDetails
-    ) {
+    return username.equals(userDetails.getUsername())
+            && !isTokenExpired(token);
+}
 
-        final String username = extractUsername(token);
+private boolean isTokenExpired(String token) {
+    return extractAllClaims(token)
+            .getExpiration()
+            .before(new Date());
+}
 
-        return username.equals(userDetails.getUsername());
-    }
+private Claims extractAllClaims(String token) {
+    return Jwts.parserBuilder()
+            .setSigningKey(getSignKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+}
 }

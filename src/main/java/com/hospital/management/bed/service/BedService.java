@@ -1,18 +1,19 @@
 package com.hospital.management.bed.service;
 
-import com.hospital.management.bed.entity.Bed;
+import com.hospital.management.bed.dto.BedRequestDTO;
+import com.hospital.management.bed.dto.BedResponseDTO;
 
 import java.util.List;
 
 public interface BedService {
 
-    Bed saveBed(Bed bed);
+    BedResponseDTO saveBed(BedRequestDTO dto);
 
-    List<Bed> getAllBeds();
+    List<BedResponseDTO> getAllBeds();
 
-    Bed getBedById(Long id);
+    BedResponseDTO getBedById(Long id);
 
-    Bed updateBed(Long id, Bed bed);
+    BedResponseDTO updateBed(Long id, BedRequestDTO dto);
 
     void deleteBed(Long id);
 }

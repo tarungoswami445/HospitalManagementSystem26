@@ -1,6 +1,7 @@
 package com.hospital.management.room.controller;
 
-import com.hospital.management.room.entity.Room;
+import com.hospital.management.room.dto.RoomRequestDTO;
+import com.hospital.management.room.dto.RoomResponseDTO;
 import com.hospital.management.room.service.RoomService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,52 +12,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rooms")
 @CrossOrigin("*")
-
 public class RoomController {
 
     @Autowired
     private RoomService roomService;
 
-    // Save Room
     @PostMapping
-    public Room saveRoom(
-            @RequestBody Room room) {
-
-        return roomService.saveRoom(room);
+    public RoomResponseDTO save(@RequestBody RoomRequestDTO dto) {
+        return roomService.saveRoom(dto);
     }
 
-    // Get All Rooms
     @GetMapping
-    public List<Room> getAllRooms() {
-
+    public List<RoomResponseDTO> getAll() {
         return roomService.getAllRooms();
     }
 
-    // Get Room By Id
     @GetMapping("/{id}")
-    public Room getRoomById(
-            @PathVariable Long id) {
-
+    public RoomResponseDTO getById(@PathVariable Long id) {
         return roomService.getRoomById(id);
     }
 
-    // Update Room
     @PutMapping("/{id}")
-    public Room updateRoom(
+    public RoomResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Room room) {
+            @RequestBody RoomRequestDTO dto) {
 
-        return roomService
-                .updateRoom(id, room);
+        return roomService.updateRoom(id, dto);
     }
 
-    // Delete Room
     @DeleteMapping("/{id}")
-    public String deleteRoom(
-            @PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         roomService.deleteRoom(id);
-
         return "Room deleted successfully";
     }
 }

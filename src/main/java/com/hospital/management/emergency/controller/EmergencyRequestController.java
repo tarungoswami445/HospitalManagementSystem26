@@ -1,7 +1,9 @@
 package com.hospital.management.emergency.controller;
 
-import com.hospital.management.emergency.entity.EmergencyRequest;
-import com.hospital.management.emergency.service.EmergencyRequestService;
+import com.hospital.management.emergency.dto.EmergencyRequestDTO;
+import com.hospital.management.emergency.dto.EmergencyResponseDTO;
+
+import com.hospital.management.emergency.serviceimpl.EmergencyRequestServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,22 +15,32 @@ import java.util.List;
 @RequestMapping("/api/emergency-requests")
 @RequiredArgsConstructor
 @CrossOrigin("*")
-
 public class EmergencyRequestController {
 
-    private final EmergencyRequestService service;
+    private final EmergencyRequestServiceImpl service;
 
     @PostMapping
-    public EmergencyRequest saveEmergencyRequest(
-            @RequestBody EmergencyRequest request
-    ) {
-
-        return service.saveEmergencyRequest(request);
+    public EmergencyResponseDTO save(@RequestBody EmergencyRequestDTO dto) {
+        return service.saveEmergencyRequest(dto);
     }
 
     @GetMapping
-    public List<EmergencyRequest> getAllEmergencyRequests() {
-
+    public List<EmergencyResponseDTO> getAll() {
         return service.getAllEmergencyRequests();
     }
+    @PutMapping("/{id}")
+public EmergencyResponseDTO update(
+        @PathVariable Long id,
+        @RequestBody EmergencyRequestDTO dto) {
+
+    return service.updateEmergencyRequest(id, dto);
+}
+    
+@DeleteMapping("/{id}")
+public String delete(@PathVariable Long id) {
+
+    service.deleteEmergencyRequest(id);
+
+    return "Emergency Request Deleted Successfully";
+}
 }

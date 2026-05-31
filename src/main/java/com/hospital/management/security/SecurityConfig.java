@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.*;
 
 import java.util.List;
-
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -36,24 +35,42 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
-
-            // IMPORTANT FIX
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
             .authorizeHttpRequests(auth -> auth
 
+                // AUTH OPEN
                 .requestMatchers("/api/auth/**").permitAll()
+
+                // SWAGGER OPEN
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
+                // ROLE BASED
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                 .requestMatchers("/api/patient/**").hasRole("PATIENT")
 
-                .anyRequest().authenticated()
+                // 👇 THESE ARE YOUR MAIN CRUD APIs (IMPORTANT)
+       .requestMatchers(
+    "/api/users/**",
+    "/api/roles/**",
+    "/api/doctors/**",
+    "/api/patients/**",
+    "/api/appointments/**",
+    "/api/prescriptions/**",
+    "/api/emergency-requests/**",
+    "/api/departments/**",
+
+    "/api/admissions/**",
+    "/api/rooms/**",
+    "/api/medical-records/**"
+).authenticated()
+.anyRequest().permitAll()
+                // .anyRequest().authenticated()
             )
 
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
             .addFilterBefore(jwtAuthenticationFilter,
@@ -63,7 +80,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // CORS (ONLY ONCE)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -74,7 +90,9 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
 
         return source;
@@ -94,4 +112,4 @@ public class SecurityConfig {
 
         return new ProviderManager(provider);
     }
-}   
+}

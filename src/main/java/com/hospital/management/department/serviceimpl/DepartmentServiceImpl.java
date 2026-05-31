@@ -1,5 +1,7 @@
 package com.hospital.management.department.serviceimpl;
 
+import com.hospital.management.department.dto.DepartmentRequestDTO;
+import com.hospital.management.department.dto.DepartmentResponseDTO;
 import com.hospital.management.department.entity.Department;
 import com.hospital.management.department.repository.DepartmentRepository;
 import com.hospital.management.department.service.DepartmentService;
@@ -8,50 +10,79 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
 
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private DepartmentRepository repository;
 
+    // CREATE
     @Override
-    public Department saveDepartment(Department department) {
-        return departmentRepository.save(department);
+    public DepartmentResponseDTO saveDepartment(DepartmentRequestDTO dto) {
+
+        Department dept = new Department();
+        dept.setDepartmentName(dto.getDepartmentName());
+        dept.setDescription(dto.getDescription());
+
+        Department saved = repository.save(dept);
+
+        return mapToDTO(saved);
     }
 
+    // GET ALL
     @Override
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public List<DepartmentResponseDTO> getAllDepartments() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
+    // GET BY ID
     @Override
-    public Department getDepartmentById(Long id) {
-        return departmentRepository.findById(id).orElse(null);
+    public DepartmentResponseDTO getDepartmentById(Long id) {
+
+        Department dept = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        return mapToDTO(dept);
     }
 
+    // UPDATE
     @Override
-    public Department updateDepartment(Long id, Department department) {
+    public DepartmentResponseDTO updateDepartment(Long id, DepartmentRequestDTO dto) {
 
-        Department existingDepartment =
-                departmentRepository.findById(id).orElse(null);
+        Department dept = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
 
-        if (existingDepartment != null) {
+        dept.setDepartmentName(dto.getDepartmentName());
+        dept.setDescription(dto.getDescription());
 
-            existingDepartment.setDepartmentName(
-                    department.getDepartmentName());
+        Department updated = repository.save(dept);
 
-            existingDepartment.setDescription(
-                    department.getDescription());
-
-            return departmentRepository.save(existingDepartment);
-        }
-
-        return null;
+        return mapToDTO(updated);
     }
 
+    // DELETE
     @Override
     public void deleteDepartment(Long id) {
-        departmentRepository.deleteById(id);
+
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Department not found");
+        }
+
+        repository.deleteById(id);
+    }
+
+    // MAPPER
+    private DepartmentResponseDTO mapToDTO(Department dept) {
+        return new DepartmentResponseDTO(
+                dept.getId(),
+                dept.getDepartmentName(),
+                dept.getDescription()
+        );
     }
 }

@@ -2,9 +2,7 @@ package com.hospital.management.user.entity;
 
 import com.hospital.management.role.entity.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -19,13 +17,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     private String phone;
@@ -34,6 +30,5 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

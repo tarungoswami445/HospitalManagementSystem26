@@ -1,19 +1,19 @@
 package com.hospital.management.admission.service;
 
-import com.hospital.management.admission.entity.Admission;
+import com.hospital.management.admission.dto.AdmissionRequestDTO;
+import com.hospital.management.admission.dto.AdmissionResponseDTO;
 
 import java.util.List;
 
 public interface AdmissionService {
 
-    Admission saveAdmission(Admission admission);
+    AdmissionResponseDTO saveAdmission(AdmissionRequestDTO dto);
 
-    List<Admission> getAllAdmissions();
+    List<AdmissionResponseDTO> getAllAdmissions();
 
-    Admission getAdmissionById(Long id);
+    AdmissionResponseDTO getAdmissionById(Long id);
 
-    Admission updateAdmission(Long id,
-                              Admission admission);
+    AdmissionResponseDTO updateAdmission(Long id, AdmissionRequestDTO dto);
 
     void deleteAdmission(Long id);
 }

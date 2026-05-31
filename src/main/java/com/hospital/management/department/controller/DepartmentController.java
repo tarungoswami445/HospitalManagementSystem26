@@ -1,6 +1,7 @@
 package com.hospital.management.department.controller;
 
-import com.hospital.management.department.entity.Department;
+import com.hospital.management.department.dto.DepartmentRequestDTO;
+import com.hospital.management.department.dto.DepartmentResponseDTO;
 import com.hospital.management.department.service.DepartmentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,51 +12,42 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/departments")
 @CrossOrigin("*")
-
 public class DepartmentController {
 
     @Autowired
-    private DepartmentService departmentService;
+    private DepartmentService service;
 
-    // Save Department
+    // CREATE
     @PostMapping
-    public Department saveDepartment(
-            @RequestBody Department department) {
-
-        return departmentService.saveDepartment(department);
+    public DepartmentResponseDTO create(@RequestBody DepartmentRequestDTO dto) {
+        return service.saveDepartment(dto);
     }
 
-    // Get All Departments
+    // GET ALL (FOR DROPDOWN)
     @GetMapping
-    public List<Department> getAllDepartments() {
-
-        return departmentService.getAllDepartments();
+    public List<DepartmentResponseDTO> getAll() {
+        return service.getAllDepartments();
     }
 
-    // Get Department By Id
+    // GET BY ID
     @GetMapping("/{id}")
-    public Department getDepartmentById(
-            @PathVariable Long id) {
-
-        return departmentService.getDepartmentById(id);
+    public DepartmentResponseDTO getById(@PathVariable Long id) {
+        return service.getDepartmentById(id);
     }
 
-    // Update Department
+    // UPDATE
     @PutMapping("/{id}")
-    public Department updateDepartment(
+    public DepartmentResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Department department) {
+            @RequestBody DepartmentRequestDTO dto) {
 
-        return departmentService.updateDepartment(id, department);
+        return service.updateDepartment(id, dto);
     }
 
-    // Delete Department
+    // DELETE
     @DeleteMapping("/{id}")
-    public String deleteDepartment(
-            @PathVariable Long id) {
-
-        departmentService.deleteDepartment(id);
-
+    public String delete(@PathVariable Long id) {
+        service.deleteDepartment(id);
         return "Department deleted successfully";
     }
 }

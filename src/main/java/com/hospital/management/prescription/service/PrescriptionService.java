@@ -1,21 +1,19 @@
 package com.hospital.management.prescription.service;
 
-import com.hospital.management.prescription.entity.Prescription;
+import com.hospital.management.prescription.dto.PrescriptionRequestDTO;
+import com.hospital.management.prescription.dto.PrescriptionResponseDTO;
 
 import java.util.List;
 
 public interface PrescriptionService {
 
-    Prescription savePrescription(
-            Prescription prescription);
+    PrescriptionResponseDTO savePrescription(PrescriptionRequestDTO dto);
 
-    List<Prescription> getAllPrescriptions();
+    List<PrescriptionResponseDTO> getAllPrescriptions();
 
-    Prescription getPrescriptionById(Long id);
+    PrescriptionResponseDTO getPrescriptionById(Long id);
 
-    Prescription updatePrescription(
-            Long id,
-            Prescription prescription);
+    PrescriptionResponseDTO updatePrescription(Long id, PrescriptionRequestDTO dto);
 
     void deletePrescription(Long id);
 }

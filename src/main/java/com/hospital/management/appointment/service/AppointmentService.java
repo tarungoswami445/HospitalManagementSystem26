@@ -1,19 +1,19 @@
 package com.hospital.management.appointment.service;
 
-import com.hospital.management.appointment.entity.Appointment;
+import com.hospital.management.appointment.dto.AppointmentRequestDTO;
+import com.hospital.management.appointment.dto.AppointmentResponseDTO;
 
 import java.util.List;
 
 public interface AppointmentService {
 
-    Appointment saveAppointment(Appointment appointment);
+    AppointmentResponseDTO saveAppointment(AppointmentRequestDTO dto);
 
-    List<Appointment> getAllAppointments();
+    List<AppointmentResponseDTO> getAllAppointments();
 
-    Appointment getAppointmentById(Long id);
+    AppointmentResponseDTO getAppointmentById(Long id);
 
-    Appointment updateAppointment(Long id,
-                                  Appointment appointment);
+    AppointmentResponseDTO updateAppointment(Long id, AppointmentRequestDTO dto);
 
     void deleteAppointment(Long id);
 }

@@ -1,6 +1,7 @@
 package com.hospital.management.admission.controller;
 
-import com.hospital.management.admission.entity.Admission;
+import com.hospital.management.admission.dto.AdmissionRequestDTO;
+import com.hospital.management.admission.dto.AdmissionResponseDTO;
 import com.hospital.management.admission.service.AdmissionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,52 +12,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admissions")
 @CrossOrigin("*")
-
 public class AdmissionController {
 
     @Autowired
     private AdmissionService admissionService;
 
-    // Save Admission
     @PostMapping
-    public Admission saveAdmission(
-            @RequestBody Admission admission) {
-
-        return admissionService.saveAdmission(admission);
+    public AdmissionResponseDTO save(@RequestBody AdmissionRequestDTO dto) {
+        return admissionService.saveAdmission(dto);
     }
 
-    // Get All Admissions
     @GetMapping
-    public List<Admission> getAllAdmissions() {
-
+    public List<AdmissionResponseDTO> getAll() {
         return admissionService.getAllAdmissions();
     }
 
-    // Get Admission By Id
     @GetMapping("/{id}")
-    public Admission getAdmissionById(
-            @PathVariable Long id) {
-
+    public AdmissionResponseDTO getById(@PathVariable Long id) {
         return admissionService.getAdmissionById(id);
     }
 
-    // Update Admission
     @PutMapping("/{id}")
-    public Admission updateAdmission(
+    public AdmissionResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Admission admission) {
+            @RequestBody AdmissionRequestDTO dto) {
 
-        return admissionService
-                .updateAdmission(id, admission);
+        return admissionService.updateAdmission(id, dto);
     }
 
-    // Delete Admission
     @DeleteMapping("/{id}")
-    public String deleteAdmission(
-            @PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         admissionService.deleteAdmission(id);
-
         return "Admission deleted successfully";
     }
 }

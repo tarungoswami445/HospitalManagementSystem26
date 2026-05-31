@@ -27,47 +27,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String requestPath = request.getRequestURI();
+        // 🔥 STEP 1: REQUEST DEBUG
+        System.out.println("===== REQUEST START =====");
+        System.out.println("URI: " + request.getRequestURI());
 
-        // ✅ IMPORTANT: AUTH ENDPOINTS SKIP JWT
-        if (requestPath.startsWith("/api/auth")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        String authHeader = request.getHeader("Authorization");
 
-        final String authHeader = request.getHeader("Authorization");
+        System.out.println("AUTH HEADER: " + authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("NO TOKEN FOUND OR INVALID FORMAT");
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
-        final String userEmail = jwtService.extractUsername(jwt);
+       try {
 
-        if (userEmail != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+    String jwt = authHeader.substring(7);
+    String userEmail = jwtService.extractUsername(jwt);
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(userEmail);
+    System.out.println("JWT USER: " + userEmail);
 
-            if (jwtService.validateToken(jwt, userDetails)) {
+    if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(userEmail);
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+        System.out.println("USER FOUND: " + userDetails.getUsername());
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        if (jwtService.validateToken(jwt, userDetails)) {
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            System.out.println("AUTH SET SUCCESS");
         }
+    }
 
+} catch (Exception e) {
+
+    e.printStackTrace();   // 🔥 VERY IMPORTANT (not just print)
+}
         filterChain.doFilter(request, response);
+
+        System.out.println("===== REQUEST END =====");
     }
 }

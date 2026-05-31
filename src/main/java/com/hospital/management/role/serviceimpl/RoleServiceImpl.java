@@ -3,6 +3,7 @@ package com.hospital.management.role.serviceimpl;
 import com.hospital.management.role.entity.Role;
 import com.hospital.management.role.repository.RoleRepository;
 import com.hospital.management.role.service.RoleService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,8 @@ import java.util.List;
 @Service
 public class RoleServiceImpl implements RoleService {
 
-   @Autowired
-private RoleRepository roleRepository;   
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public Role saveRole(Role role) {
@@ -26,20 +27,19 @@ private RoleRepository roleRepository;
 
     @Override
     public Role getRoleById(Long id) {
-        return roleRepository.findById(id).orElse(null);
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
     @Override
     public Role updateRole(Long id, Role role) {
 
-        Role existingRole = roleRepository.findById(id).orElse(null);
+        Role existingRole = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        if (existingRole != null) {
-            existingRole.setRoleName(role.getRoleName());
-            return roleRepository.save(existingRole);
-        }
+        existingRole.setRoleName(role.getRoleName());
 
-        return null;
+        return roleRepository.save(existingRole);
     }
 
     @Override

@@ -1,18 +1,19 @@
 package com.hospital.management.doctor.service;
 
-import com.hospital.management.doctor.entity.Doctor;
+import com.hospital.management.doctor.dto.DoctorRequestDTO;
+import com.hospital.management.doctor.dto.DoctorResponseDTO;
 
 import java.util.List;
 
 public interface DoctorService {
 
-    Doctor saveDoctor(Doctor doctor);
+    DoctorResponseDTO saveDoctor(DoctorRequestDTO dto);
 
-    List<Doctor> getAllDoctors();
+    List<DoctorResponseDTO> getAllDoctors();
 
-    Doctor getDoctorById(Long id);
+    DoctorResponseDTO getDoctorById(Long id);
 
-    Doctor updateDoctor(Long id, Doctor doctor);
+    DoctorResponseDTO updateDoctor(Long id, DoctorRequestDTO dto);
 
     void deleteDoctor(Long id);
 }

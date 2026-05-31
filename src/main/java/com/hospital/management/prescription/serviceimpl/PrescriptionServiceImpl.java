@@ -1,20 +1,20 @@
 package com.hospital.management.prescription.serviceimpl;
 
-import com.hospital.management.appointment.entity.Appointment;
-import com.hospital.management.appointment.repository.AppointmentRepository;
-
+import com.hospital.management.prescription.dto.*;
 import com.hospital.management.prescription.entity.Prescription;
 import com.hospital.management.prescription.repository.PrescriptionRepository;
 import com.hospital.management.prescription.service.PrescriptionService;
+import com.hospital.management.appointment.entity.Appointment;
+import com.hospital.management.appointment.repository.AppointmentRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class PrescriptionServiceImpl
-        implements PrescriptionService {
+public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Autowired
     private PrescriptionRepository prescriptionRepository;
@@ -22,65 +22,86 @@ public class PrescriptionServiceImpl
     @Autowired
     private AppointmentRepository appointmentRepository;
 
+    // CREATE
     @Override
-    public Prescription savePrescription(
-            Prescription prescription) {
+    public PrescriptionResponseDTO savePrescription(PrescriptionRequestDTO dto) {
 
-        Long appointmentId =
-                prescription.getAppointment().getId();
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        Appointment appointment =
-                appointmentRepository.findById(appointmentId)
-                        .orElse(null);
+        Prescription p = new Prescription();
+        p.setDoctorNotes(dto.getDoctorNotes());
+        p.setMedicines(dto.getMedicines());
+        p.setAppointment(appointment);
 
-        prescription.setAppointment(appointment);
+        Prescription saved = prescriptionRepository.save(p);
 
-        return prescriptionRepository.save(prescription);
+        return mapToDTO(saved);
     }
 
+    // GET ALL
     @Override
-    public List<Prescription> getAllPrescriptions() {
+    public List<PrescriptionResponseDTO> getAllPrescriptions() {
 
-        return prescriptionRepository.findAll();
+        return prescriptionRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
+    // GET BY ID
     @Override
-    public Prescription getPrescriptionById(Long id) {
+    public PrescriptionResponseDTO getPrescriptionById(Long id) {
 
-        return prescriptionRepository.findById(id)
-                .orElse(null);
+        Prescription p = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prescription not found"));
+
+        return mapToDTO(p);
     }
 
+    // UPDATE
     @Override
-    public Prescription updatePrescription(
-            Long id,
-            Prescription prescription) {
+    public PrescriptionResponseDTO updatePrescription(Long id, PrescriptionRequestDTO dto) {
 
-        Prescription existingPrescription =
-                prescriptionRepository.findById(id)
-                        .orElse(null);
+        Prescription p = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prescription not found"));
 
-        if (existingPrescription != null) {
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-            existingPrescription.setDoctorNotes(
-                    prescription.getDoctorNotes());
+        p.setDoctorNotes(dto.getDoctorNotes());
+        p.setMedicines(dto.getMedicines());
+        p.setAppointment(appointment);
 
-            existingPrescription.setMedicines(
-                    prescription.getMedicines());
-
-            existingPrescription.setAppointment(
-                    prescription.getAppointment());
-
-            return prescriptionRepository
-                    .save(existingPrescription);
-        }
-
-        return null;
+        return mapToDTO(prescriptionRepository.save(p));
     }
 
+    // DELETE
     @Override
     public void deletePrescription(Long id) {
 
+        if (!prescriptionRepository.existsById(id)) {
+            throw new RuntimeException("Prescription not found");
+        }
+
         prescriptionRepository.deleteById(id);
+    }
+
+    // MAPPER
+    private PrescriptionResponseDTO mapToDTO(Prescription p) {
+
+        Appointment a = p.getAppointment();
+
+        return new PrescriptionResponseDTO(
+                p.getId(),
+                p.getDoctorNotes(),
+                p.getMedicines(),
+                p.getCreatedAt(),
+                a.getId(),
+                a.getPatient().getId(),
+                a.getPatient().getUser().getFullName(),
+                a.getDoctor().getId(),
+                a.getDoctor().getUser().getFullName()
+        );
     }
 }

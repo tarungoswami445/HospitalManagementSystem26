@@ -3,16 +3,13 @@ package com.hospital.management.bed.entity;
 import com.hospital.management.room.entity.Room;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "beds")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Bed {
 
     @Id
@@ -21,7 +18,7 @@ public class Bed {
 
     private String bedNumber;
 
-    private String status;
+    private String status; // AVAILABLE / OCCUPIED / MAINTENANCE
 
     @ManyToOne
     @JoinColumn(name = "room_id")

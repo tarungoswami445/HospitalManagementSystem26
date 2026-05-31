@@ -1,9 +1,10 @@
 package com.hospital.management.bed.serviceimpl;
 
+import com.hospital.management.bed.dto.BedRequestDTO;
+import com.hospital.management.bed.dto.BedResponseDTO;
 import com.hospital.management.bed.entity.Bed;
 import com.hospital.management.bed.repository.BedRepository;
 import com.hospital.management.bed.service.BedService;
-
 import com.hospital.management.room.entity.Room;
 import com.hospital.management.room.repository.RoomRepository;
 
@@ -11,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class BedServiceImpl
-        implements BedService {
+public class BedServiceImpl implements BedService {
 
     @Autowired
     private BedRepository bedRepository;
@@ -22,62 +23,82 @@ public class BedServiceImpl
     @Autowired
     private RoomRepository roomRepository;
 
+    // CREATE
     @Override
-    public Bed saveBed(Bed bed) {
+    public BedResponseDTO saveBed(BedRequestDTO dto) {
 
-        Long roomId =
-                bed.getRoom().getId();
+        Room room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
 
-        Room room =
-                roomRepository.findById(roomId)
-                        .orElse(null);
-
+        Bed bed = new Bed();
+        bed.setBedNumber(dto.getBedNumber());
+        bed.setStatus(dto.getStatus());
         bed.setRoom(room);
 
-        return bedRepository.save(bed);
+        Bed saved = bedRepository.save(bed);
+
+        return mapToDTO(saved);
     }
 
+    // GET ALL
     @Override
-    public List<Bed> getAllBeds() {
+    public List<BedResponseDTO> getAllBeds() {
 
-        return bedRepository.findAll();
+        return bedRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
+    // GET BY ID
     @Override
-    public Bed getBedById(Long id) {
+    public BedResponseDTO getBedById(Long id) {
 
-        return bedRepository.findById(id)
-                .orElse(null);
+        Bed bed = bedRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bed not found"));
+
+        return mapToDTO(bed);
     }
 
+    // UPDATE
     @Override
-    public Bed updateBed(Long id,
-                         Bed bed) {
+    public BedResponseDTO updateBed(Long id, BedRequestDTO dto) {
 
-        Bed existingBed =
-                bedRepository.findById(id)
-                        .orElse(null);
+        Bed bed = bedRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bed not found"));
 
-        if (existingBed != null) {
+        Room room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
 
-            existingBed.setBedNumber(
-                    bed.getBedNumber());
+        bed.setBedNumber(dto.getBedNumber());
+        bed.setStatus(dto.getStatus());
+        bed.setRoom(room);
 
-            existingBed.setStatus(
-                    bed.getStatus());
+        Bed updated = bedRepository.save(bed);
 
-            existingBed.setRoom(
-                    bed.getRoom());
-
-            return bedRepository.save(existingBed);
-        }
-
-        return null;
+        return mapToDTO(updated);
     }
 
+    // DELETE
     @Override
     public void deleteBed(Long id) {
 
+        if (!bedRepository.existsById(id)) {
+            throw new RuntimeException("Bed not found");
+        }
+
         bedRepository.deleteById(id);
+    }
+
+    // MAPPER
+    private BedResponseDTO mapToDTO(Bed bed) {
+
+        return new BedResponseDTO(
+                bed.getId(),
+                bed.getBedNumber(),
+                bed.getStatus(),
+                bed.getRoom().getId(),
+                bed.getRoom().getRoomNumber()
+        );
     }
 }

@@ -1,16 +1,13 @@
 package com.hospital.management.room.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "rooms")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Room {
 
     @Id
@@ -18,12 +15,8 @@ public class Room {
     private Long id;
 
     private String roomNumber;
-
     private String roomType;
-
     private Integer floorNumber;
-
     private Double pricePerDay;
-
-    private String status;
-}   
+    private String status; // AVAILABLE / OCCUPIED / MAINTENANCE
+}

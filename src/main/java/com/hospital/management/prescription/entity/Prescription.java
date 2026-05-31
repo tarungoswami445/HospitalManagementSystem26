@@ -3,9 +3,7 @@ package com.hospital.management.prescription.entity;
 import com.hospital.management.appointment.entity.Appointment;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +12,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Prescription {
 
     @Id
@@ -22,7 +19,6 @@ public class Prescription {
     private Long id;
 
     private String doctorNotes;
-
     private String medicines;
 
     private LocalDateTime createdAt;

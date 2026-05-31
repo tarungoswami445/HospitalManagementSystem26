@@ -1,18 +1,19 @@
 package com.hospital.management.room.service;
 
-import com.hospital.management.room.entity.Room;
+import com.hospital.management.room.dto.RoomRequestDTO;
+import com.hospital.management.room.dto.RoomResponseDTO;
 
 import java.util.List;
 
 public interface RoomService {
 
-    Room saveRoom(Room room);
+    RoomResponseDTO saveRoom(RoomRequestDTO dto);
 
-    List<Room> getAllRooms();
+    List<RoomResponseDTO> getAllRooms();
 
-    Room getRoomById(Long id);
+    RoomResponseDTO getRoomById(Long id);
 
-    Room updateRoom(Long id, Room room);
+    RoomResponseDTO updateRoom(Long id, RoomRequestDTO dto);
 
     void deleteRoom(Long id);
 }

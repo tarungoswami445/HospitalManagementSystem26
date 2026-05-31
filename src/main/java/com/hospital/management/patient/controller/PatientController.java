@@ -1,6 +1,7 @@
 package com.hospital.management.patient.controller;
 
-import com.hospital.management.patient.entity.Patient;
+import com.hospital.management.patient.dto.PatientRequestDTO;
+import com.hospital.management.patient.dto.PatientResponseDTO;
 import com.hospital.management.patient.service.PatientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,43 +12,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/patients")
 @CrossOrigin("*")
-
 public class PatientController {
 
     @Autowired
     private PatientService patientService;
 
-    // Save Patient
     @PostMapping
-    public Patient savePatient(@RequestBody Patient patient) {
-        return patientService.savePatient(patient);
+    public PatientResponseDTO save(@RequestBody PatientRequestDTO dto) {
+        return patientService.savePatient(dto);
     }
 
-    // Get All Patients
     @GetMapping
-    public List<Patient> getAllPatients() {
+    public List<PatientResponseDTO> getAll() {
         return patientService.getAllPatients();
     }
 
-    // Get Patient By Id
     @GetMapping("/{id}")
-    public Patient getPatientById(@PathVariable Long id) {
+    public PatientResponseDTO getById(@PathVariable Long id) {
         return patientService.getPatientById(id);
     }
 
-    // Update Patient
     @PutMapping("/{id}")
-    public Patient updatePatient(@PathVariable Long id,
-                                 @RequestBody Patient patient) {
-        return patientService.updatePatient(id, patient);
+    public PatientResponseDTO update(
+            @PathVariable Long id,
+            @RequestBody PatientRequestDTO dto) {
+
+        return patientService.updatePatient(id, dto);
     }
 
-    // Delete Patient
     @DeleteMapping("/{id}")
-    public String deletePatient(@PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         patientService.deletePatient(id);
-
         return "Patient deleted successfully";
     }
 }

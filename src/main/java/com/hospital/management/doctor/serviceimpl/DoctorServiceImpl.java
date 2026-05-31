@@ -2,6 +2,8 @@ package com.hospital.management.doctor.serviceimpl;
 
 import com.hospital.management.department.entity.Department;
 import com.hospital.management.department.repository.DepartmentRepository;
+import com.hospital.management.doctor.dto.DoctorRequestDTO;
+import com.hospital.management.doctor.dto.DoctorResponseDTO;
 import com.hospital.management.doctor.entity.Doctor;
 import com.hospital.management.doctor.repository.DoctorRepository;
 import com.hospital.management.doctor.service.DoctorService;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorServiceImpl implements DoctorService {
@@ -25,69 +28,98 @@ public class DoctorServiceImpl implements DoctorService {
     @Autowired
     private DepartmentRepository departmentRepository;
 
+    // CREATE
     @Override
-    public Doctor saveDoctor(Doctor doctor) {
+    public DoctorResponseDTO saveDoctor(DoctorRequestDTO dto) {
 
-        Long userId = doctor.getUser().getId();
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        User user = userRepository.findById(userId).orElse(null);
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
 
-        Long departmentId = doctor.getDepartment().getId();
-
-        Department department =
-                departmentRepository.findById(departmentId).orElse(null);
-
+        Doctor doctor = new Doctor();
+        doctor.setSpecialization(dto.getSpecialization());
+        doctor.setQualification(dto.getQualification());
+        doctor.setExperienceYears(dto.getExperienceYears());
+        doctor.setConsultationFee(dto.getConsultationFee());
         doctor.setUser(user);
-
         doctor.setDepartment(department);
 
-        return doctorRepository.save(doctor);
+        Doctor saved = doctorRepository.save(doctor);
+
+        return mapToDTO(saved);
     }
 
+    // GET ALL
     @Override
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+    public List<DoctorResponseDTO> getAllDoctors() {
+
+        return doctorRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
+    // GET BY ID
     @Override
-    public Doctor getDoctorById(Long id) {
-        return doctorRepository.findById(id).orElse(null);
+    public DoctorResponseDTO getDoctorById(Long id) {
+
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        return mapToDTO(doctor);
     }
 
+    // UPDATE
     @Override
-    public Doctor updateDoctor(Long id, Doctor doctor) {
+    public DoctorResponseDTO updateDoctor(Long id, DoctorRequestDTO dto) {
 
-        Doctor existingDoctor =
-                doctorRepository.findById(id).orElse(null);
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-        if (existingDoctor != null) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            existingDoctor.setSpecialization(
-                    doctor.getSpecialization());
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
 
-            existingDoctor.setQualification(
-                    doctor.getQualification());
+        doctor.setSpecialization(dto.getSpecialization());
+        doctor.setQualification(dto.getQualification());
+        doctor.setExperienceYears(dto.getExperienceYears());
+        doctor.setConsultationFee(dto.getConsultationFee());
+        doctor.setUser(user);
+        doctor.setDepartment(department);
 
-            existingDoctor.setExperienceYears(
-                    doctor.getExperienceYears());
+        Doctor updated = doctorRepository.save(doctor);
 
-            existingDoctor.setConsultationFee(
-                    doctor.getConsultationFee());
-
-            existingDoctor.setUser(
-                    doctor.getUser());
-
-            existingDoctor.setDepartment(
-                    doctor.getDepartment());
-
-            return doctorRepository.save(existingDoctor);
-        }
-
-        return null;
+        return mapToDTO(updated);
     }
 
+    // DELETE
     @Override
     public void deleteDoctor(Long id) {
+
+        if (!doctorRepository.existsById(id)) {
+            throw new RuntimeException("Doctor not found");
+        }
+
         doctorRepository.deleteById(id);
+    }
+
+    // MAPPER
+    private DoctorResponseDTO mapToDTO(Doctor doctor) {
+
+        return new DoctorResponseDTO(
+                doctor.getId(),
+                doctor.getSpecialization(),
+                doctor.getQualification(),
+                doctor.getExperienceYears(),
+                doctor.getConsultationFee(),
+                doctor.getUser().getId(),
+                doctor.getUser().getFullName(),
+                doctor.getDepartment().getId(),
+                doctor.getDepartment().getDepartmentName()
+        );
     }
 }

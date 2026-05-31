@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "emergency_requests")
-
 @Data
 public class EmergencyRequest {
 

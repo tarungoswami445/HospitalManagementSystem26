@@ -1,6 +1,7 @@
 package com.hospital.management.bed.controller;
 
-import com.hospital.management.bed.entity.Bed;
+import com.hospital.management.bed.dto.BedRequestDTO;
+import com.hospital.management.bed.dto.BedResponseDTO;
 import com.hospital.management.bed.service.BedService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,51 +12,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/beds")
 @CrossOrigin("*")
-
 public class BedController {
 
     @Autowired
     private BedService bedService;
 
-    // Save Bed
     @PostMapping
-    public Bed saveBed(
-            @RequestBody Bed bed) {
-
-        return bedService.saveBed(bed);
+    public BedResponseDTO save(@RequestBody BedRequestDTO dto) {
+        return bedService.saveBed(dto);
     }
 
-    // Get All Beds
     @GetMapping
-    public List<Bed> getAllBeds() {
-
+    public List<BedResponseDTO> getAll() {
         return bedService.getAllBeds();
     }
 
-    // Get Bed By Id
     @GetMapping("/{id}")
-    public Bed getBedById(
-            @PathVariable Long id) {
-
+    public BedResponseDTO getById(@PathVariable Long id) {
         return bedService.getBedById(id);
     }
 
-    // Update Bed
     @PutMapping("/{id}")
-    public Bed updateBed(
+    public BedResponseDTO update(
             @PathVariable Long id,
-            @RequestBody Bed bed) {
+            @RequestBody BedRequestDTO dto) {
 
-        return bedService.updateBed(id, bed);
+        return bedService.updateBed(id, dto);
     }
 
-    // Delete Bed
     @DeleteMapping("/{id}")
-    public String deleteBed(
-            @PathVariable Long id) {
-
+    public String delete(@PathVariable Long id) {
         bedService.deleteBed(id);
-
         return "Bed deleted successfully";
     }
 }
