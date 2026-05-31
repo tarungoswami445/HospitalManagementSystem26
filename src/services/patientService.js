@@ -20,3 +20,6 @@ export const updatePatient = (id, patient) => {
 export const deletePatient = (id) => {
   return api.delete(`/api/patients/${id}`);
 };
+export const getAllUsers = () => {
+  return api.get("/api/users");
+};

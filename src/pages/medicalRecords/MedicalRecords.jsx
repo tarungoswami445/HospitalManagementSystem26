@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { getAllPatients } from "../../services/patientService";
 
 import {
   getAllMedicalRecords,
@@ -14,17 +15,23 @@ const MedicalRecords = () => {
   const [editingId, setEditingId] = useState(null);
 const [search, setSearch] = useState("");
 
-  const [formData, setFormData] = useState({
+const [patients, setPatients] = useState([]);
 
-    diagnosis: "",
-    treatment: "",
-    allergies: "",
+const [formData, setFormData] = useState({
+  diagnosis: "",
+  treatment: "",
+  allergies: "",
+  patientId: ""
+});
 
-    patient: {
-      id: ""
-    }
-
-  });
+const loadPatients = async () => {
+  try {
+    const response = await getAllPatients();
+    setPatients(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // Load Records
 
@@ -43,11 +50,10 @@ const [search, setSearch] = useState("");
     }
   };
 
-  useEffect(() => {
-
-    loadRecords();
-
-  }, []);
+ useEffect(() => {
+  loadRecords();
+  loadPatients();
+}, []);
 
   const filteredRecords = records.filter((record) => {
 
@@ -55,7 +61,7 @@ const [search, setSearch] = useState("");
 
   return (
     record.id?.toString().includes(s) ||
-    record.patient?.id?.toString().includes(s) ||
+   record.patientId?.toString().includes(s) ||
     record.diagnosis?.toLowerCase().includes(s) ||
     record.treatment?.toLowerCase().includes(s)
   );
@@ -63,27 +69,13 @@ const [search, setSearch] = useState("");
   // Handle Change
 
   const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    const { name, value } = e.target;
-
-    if (name === "patientId") {
-
-      setFormData({
-        ...formData,
-        patient: {
-          id: value
-        }
-      });
-
-    } else {
-
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
-
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
   // Save
 
  const handleSubmit = async (e) => {
@@ -111,18 +103,12 @@ const [search, setSearch] = useState("");
     loadRecords();
 
     setEditingId(null);
-
-    setFormData({
-
-      diagnosis: "",
-      treatment: "",
-      allergies: "",
-
-      patient: {
-        id: ""
-      }
-
-    });
+setFormData({
+  diagnosis: "",
+  treatment: "",
+  allergies: "",
+  patientId: ""
+});
 
   } catch (error) {
 
@@ -152,17 +138,12 @@ const handleEdit = (record) => {
 
   setEditingId(record.id);
 
-  setFormData({
-
-    diagnosis: record.diagnosis,
-    treatment: record.treatment,
-    allergies: record.allergies,
-
-    patient: {
-      id: record.patient?.id || ""
-    }
-
-  });
+setFormData({
+  diagnosis: record.diagnosis,
+  treatment: record.treatment,
+  allergies: record.allergies,
+  patientId: record.patientId
+});
 };
   return (
 
@@ -188,14 +169,23 @@ const handleEdit = (record) => {
 
         <div className="grid grid-cols-2 gap-4">
 
-          <input
-            type="number"
-            name="patientId"
-            placeholder="Patient ID"
-            value={formData.patient.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+        <select
+  name="patientId"
+  value={formData.patientId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Patient</option>
+
+  {patients.map((patient) => (
+    <option
+      key={patient.id}
+      value={patient.id}
+    >
+      {patient.userName}
+    </option>
+  ))}
+</select>
 
           <input
             type="text"
@@ -266,9 +256,9 @@ const handleEdit = (record) => {
                   {record.id}
                 </td>
 
-                <td className="p-4">
-                  {record.patient?.id}
-                </td>
+               <td className="p-4">
+  {record.patientName}
+</td>
 
                 <td className="p-4">
                   {record.diagnosis}

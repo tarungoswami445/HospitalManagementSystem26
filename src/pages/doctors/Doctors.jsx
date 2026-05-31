@@ -5,6 +5,8 @@ import {
   getAllDoctors,
   saveDoctor,
   deleteDoctor,
+  getAllUsers,
+    getAllDepartments
 } from "../../services/doctorService";
 
 import {
@@ -23,15 +25,43 @@ const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+  const [departments, setDepartments] = useState([]);
+const [formData, setFormData] = useState({
+  specialization: "",
+  qualification: "",
+  experienceYears: "",
+  consultationFee: "",
+  userId: "",
+  departmentId: "",
+   departmentId: ""
+});
+const loadUsers = async () => {
+  try {
 
-  const [formData, setFormData] = useState({
-    specialization: "",
-    qualification: "",
-    experienceYears: "",
-    consultationFee: "",
-    user: { id: "" },
-    department: { id: "" }
-  });
+    const response = await getAllUsers();
+
+    const doctorUsers = response.data.filter(
+      user => user.roleName === "DOCTOR"
+    );
+
+    setUsers(doctorUsers);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+};
+
+const loadDepartments = async () => {
+  try {
+    const response = await getAllDepartments();
+    setDepartments(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // =============================
   // LOAD DOCTORS
@@ -58,46 +88,25 @@ const Doctors = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadDoctors();
-  }, []);
+useEffect(() => {
+  loadDoctors();
+  loadUsers();
+  loadDepartments();
+}, []);
 
   // =============================
   // HANDLE INPUT
   // =============================
 
-  const handleChange = (e) => {
+const handleChange = (e) => {
 
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    if (name === "userId") {
-
-      setFormData({
-        ...formData,
-        user: { id: value }
-      });
-
-    }
-
-    else if (name === "departmentId") {
-
-      setFormData({
-        ...formData,
-        department: { id: value }
-      });
-
-    }
-
-    else {
-
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
-
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
   // =============================
   // SAVE DOCTOR
   // =============================
@@ -113,15 +122,14 @@ const Doctors = () => {
       toast.success("Doctor Created Successfully");
 
       loadDoctors();
-
-      setFormData({
-        specialization: "",
-        qualification: "",
-        experienceYears: "",
-        consultationFee: "",
-        user: { id: "" },
-        department: { id: "" }
-      });
+setFormData({
+  specialization: "",
+  qualification: "",
+  experienceYears: "",
+  consultationFee: "",
+  userId: "",
+  departmentId: ""
+});
 
     } catch (error) {
 
@@ -258,16 +266,21 @@ const Doctors = () => {
             <div className="flex items-center border rounded-xl px-4 py-3">
 
               <FaUserMd className="text-gray-400 mr-3" />
+<select
+  name="userId"
+  value={formData.userId}
+  onChange={handleChange}
+  className="w-full outline-none"
+  required
+>
+  <option value="">Select Doctor User</option>
 
-              <input
-                type="number"
-                name="userId"
-                value={formData.user.id}
-                onChange={handleChange}
-                placeholder="Enter User ID"
-                className="w-full outline-none"
-                required
-              />
+  {users.map((user) => (
+    <option key={user.id} value={user.id}>
+      {user.fullName} (ID: {user.id})
+    </option>
+  ))}
+</select>
 
             </div>
 
@@ -285,15 +298,21 @@ const Doctors = () => {
 
               <FaHospital className="text-gray-400 mr-3" />
 
-              <input
-                type="number"
-                name="departmentId"
-                value={formData.department.id}
-                onChange={handleChange}
-                placeholder="Enter Department ID"
-                className="w-full outline-none"
-                required
-              />
+            <select
+  name="departmentId"
+  value={formData.departmentId}
+  onChange={handleChange}
+  className="w-full outline-none"
+  required
+>
+  <option value="">Select Department</option>
+
+  {departments.map((dept) => (
+    <option key={dept.id} value={dept.id}>
+      {dept.departmentName} (ID: {dept.id})
+    </option>
+  ))}
+</select>
 
             </div>
 

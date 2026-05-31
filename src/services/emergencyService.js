@@ -11,3 +11,10 @@ export const saveEmergencyRequest = (request) => {
 export const deleteEmergencyRequest = (id) => {
   return api.delete(`/api/emergency-requests/${id}`);
 };
+
+export const updateEmergencyRequest = (id, request) => {
+  return api.put(`/api/emergency-requests/${id}`, request);
+};
+export const getAllPatients = () => {
+  return api.get("/api/patients");
+};

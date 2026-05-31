@@ -6,6 +6,7 @@ import {
   savePatient,
   deletePatient,
   updatePatient,
+  getAllUsers
 } from "../../services/patientService";
 
 const Patients = () => {
@@ -15,15 +16,28 @@ const Patients = () => {
   const [loading, setLoading] = useState(true);
 
   const [editingId, setEditingId] = useState(null);
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+  loadPatients();
+  loadUsers();
+}, []);
 
-  const [formData, setFormData] = useState({
-    age: "",
-    gender: "",
-    bloodGroup: "",
-    address: "",
-    disease: "",
-    user: { id: "" },
-  });
+ const [formData, setFormData] = useState({
+  age: "",
+  gender: "",
+  bloodGroup: "",
+  address: "",
+  disease: "",
+  userId: ""
+});
+const loadUsers = async () => {
+  try {
+    const response = await getAllUsers();
+    setUsers(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // LOAD
   const loadPatients = async () => {
@@ -53,20 +67,14 @@ const Patients = () => {
 
   // HANDLE CHANGE
   const handleChange = (e) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    if (name === "userId") {
-      setFormData({
-        ...formData,
-        user: { id: value },
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-  };
+  setFormData({
+    ...formData,
+    [name]: value,
+  });
+};
+
 
   // SUBMIT
   const handleSubmit = async (e) => {
@@ -84,14 +92,14 @@ const Patients = () => {
       setEditingId(null);
       loadPatients();
 
-      setFormData({
-        age: "",
-        gender: "",
-        bloodGroup: "",
-        address: "",
-        disease: "",
-        user: { id: "" },
-      });
+     setFormData({
+  age: "",
+  gender: "",
+  bloodGroup: "",
+  address: "",
+  disease: "",
+  userId: ""
+});
     } catch (err) {
       toast.error("Something went wrong");
     }
@@ -164,7 +172,20 @@ const Patients = () => {
 
         <div className="grid grid-cols-2 gap-4">
 
-          <input name="userId" value={formData.user.id} onChange={handleChange} placeholder="User ID" className="border p-3 rounded-lg" />
+          <select
+  name="userId"
+  value={formData.userId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select User</option>
+
+  {users.map((user) => (
+    <option key={user.id} value={user.id}>
+      {user.fullName} (ID: {user.id})
+    </option>
+  ))}
+</select>
           <input name="age" value={formData.age} onChange={handleChange} placeholder="Age" className="border p-3 rounded-lg" />
           <input name="gender" value={formData.gender} onChange={handleChange} placeholder="Gender" className="border p-3 rounded-lg" />
           <input name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} placeholder="Blood Group" className="border p-3 rounded-lg" />

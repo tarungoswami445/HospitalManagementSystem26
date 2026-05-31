@@ -11,3 +11,9 @@ export const saveDoctor = (doctor) => {
 export const deleteDoctor = (id) => {
   return api.delete(`/api/doctors/${id}`);
 };
+export const getAllUsers = () => {
+  return api.get("/api/users");
+};
+export const getAllDepartments = () => {
+  return api.get("/api/departments");
+};

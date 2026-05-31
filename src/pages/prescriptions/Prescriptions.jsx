@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { getAllAppointments } from "../../services/appointmentService";
 
 import {
   getAllPrescriptions,
@@ -13,17 +14,21 @@ const Prescriptions = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [editingId, setEditingId] = useState(null);
 const [search, setSearch] = useState("");
+const [appointments, setAppointments] = useState([]);
 
-  const [formData, setFormData] = useState({
-
-    doctorNotes: "",
-    medicines: "",
-
-    appointment: {
-      id: ""
-    }
-
-  });
+const [formData, setFormData] = useState({
+  doctorNotes: "",
+  medicines: "",
+  appointmentId: ""
+});
+const loadAppointments = async () => {
+  try {
+    const response = await getAllAppointments();
+    setAppointments(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // Load Prescriptions
 
@@ -41,48 +46,32 @@ const [search, setSearch] = useState("");
       console.log(error);
     }
   };
-
-  useEffect(() => {
-
-    loadPrescriptions();
-
-  }, []);
+useEffect(() => {
+  loadPrescriptions();
+  loadAppointments();
+}, []);
   const filteredPrescriptions = prescriptions.filter((p) => {
 
   const s = search.toLowerCase();
 
   return (
     p.id?.toString().includes(s) ||
-    p.appointment?.id?.toString().includes(s) ||
+   p.appointmentId?.toString().includes(s)||
     p.doctorNotes?.toLowerCase().includes(s) ||
     p.medicines?.toLowerCase().includes(s)
   );
 });
+// Handle Change
+const handleChange = (e) => {
+  const { name, value } = e.target;
 
-  // Handle Change
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
 
-  const handleChange = (e) => {
-
-    const { name, value } = e.target;
-
-    if (name === "appointmentId") {
-
-      setFormData({
-        ...formData,
-        appointment: {
-          id: value
-        }
-      });
-
-    } else {
-
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
-
+ 
   // Save
 
   const handleSubmit = async (e) => {
@@ -111,16 +100,11 @@ const [search, setSearch] = useState("");
 
     setEditingId(null);
 
-    setFormData({
-
-      doctorNotes: "",
-      medicines: "",
-
-      appointment: {
-        id: ""
-      }
-
-    });
+  setFormData({
+  doctorNotes: "",
+  medicines: "",
+  appointmentId: ""
+});
 
   } catch (error) {
 
@@ -151,14 +135,9 @@ const handleEdit = (prescription) => {
   setEditingId(prescription.id);
 
   setFormData({
-
     doctorNotes: prescription.doctorNotes,
     medicines: prescription.medicines,
-
-    appointment: {
-      id: prescription.appointment?.id || ""
-    }
-
+    appointmentId: prescription.appointmentId
   });
 };
   return (
@@ -184,15 +163,23 @@ const handleEdit = (prescription) => {
       >
 
         <div className="grid grid-cols-1 gap-4">
+<select
+  name="appointmentId"
+  value={formData.appointmentId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Appointment</option>
 
-          <input
-            type="number"
-            name="appointmentId"
-            placeholder="Appointment ID"
-            value={formData.appointment.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+  {appointments.map((appointment) => (
+    <option
+      key={appointment.id}
+      value={appointment.id}
+    >
+      Appointment #{appointment.id} - {appointment.patientName}
+    </option>
+  ))}
+</select>
 
         </div>
 
@@ -255,7 +242,7 @@ const handleEdit = (prescription) => {
                 </td>
 
                 <td className="p-4">
-                  {prescription.appointment?.id}
+                 {prescription.appointmentId}
                 </td>
 
                 <td className="p-4">

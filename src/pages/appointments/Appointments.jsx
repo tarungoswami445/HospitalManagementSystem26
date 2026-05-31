@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { getAllPatients } from "../../services/patientService";
+import { getAllDoctors } from "../../services/doctorService";
 
 import {
   getAllAppointments,
@@ -13,16 +15,36 @@ const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [patients, setPatients] = useState([]);
+const [doctors, setDoctors] = useState([]);
 
-  const [formData, setFormData] = useState({
-    appointmentDate: "",
-    appointmentTime: "",
-    status: "",
-    symptoms: "",
-    tokenNumber: "",
-    patient: { id: "" },
-    doctor: { id: "" }
-  });
+
+const [formData, setFormData] = useState({
+  appointmentDate: "",
+  appointmentTime: "",
+  status: "",
+  symptoms: "",
+  tokenNumber: "",
+  patientId: "",
+  doctorId: ""
+});
+const loadPatients = async () => {
+  try {
+    const response = await getAllPatients();
+    setPatients(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const loadDoctors = async () => {
+  try {
+    const response = await getAllDoctors();
+    setDoctors(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // LOAD APPOINTMENTS
   const loadAppointments = async () => {
@@ -45,9 +67,11 @@ const Appointments = () => {
   }
 };
 
-  useEffect(() => {
-    loadAppointments();
-  }, []);
+useEffect(() => {
+  loadAppointments();
+  loadPatients();
+  loadDoctors();
+}, []);
 
   // SEARCH FILTER (IMPORTANT)
  const filteredAppointments = appointments.filter((a) => {
@@ -56,25 +80,22 @@ const Appointments = () => {
 
   return (
     a.status?.toLowerCase().includes(searchText) ||
-    a.patient?.id?.toString().includes(searchText) ||
-    a.doctor?.id?.toString().includes(searchText) ||
+  a.patientName?.toLowerCase().includes(searchText) ||
+a.doctorName?.toLowerCase().includes(searchText)  ||
     a.appointmentDate?.toString().includes(searchText) ||
     a.tokenNumber?.toString().includes(searchText)
   );
 });
 
   // HANDLE INPUT
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    if (name === "patientId") {
-      setFormData({ ...formData, patient: { id: value } });
-    } else if (name === "doctorId") {
-      setFormData({ ...formData, doctor: { id: value } });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
 
   // SUBMIT (ADD + UPDATE)
   const handleSubmit = async (e) => {
@@ -93,15 +114,15 @@ const Appointments = () => {
       setEditingId(null);
       loadAppointments();
 
-      setFormData({
-        appointmentDate: "",
-        appointmentTime: "",
-        status: "",
-        symptoms: "",
-        tokenNumber: "",
-        patient: { id: "" },
-        doctor: { id: "" }
-      });
+     setFormData({
+  appointmentDate: "",
+  appointmentTime: "",
+  status: "",
+  symptoms: "",
+  tokenNumber: "",
+  patientId: "",
+  doctorId: ""
+});
 
     } catch (error) {
       console.log(error);
@@ -130,8 +151,8 @@ const Appointments = () => {
       status: a.status,
       symptoms: a.symptoms,
       tokenNumber: a.tokenNumber,
-      patient: { id: a.patient?.id || "" },
-      doctor: { id: a.doctor?.id || "" }
+   patientId: a.patientId || "",
+doctorId: a.doctorId || ""
     });
   };
 
@@ -159,22 +180,35 @@ const Appointments = () => {
       >
 
         <div className="grid grid-cols-2 gap-4">
+<select
+  name="patientId"
+  value={formData.patientId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Patient</option>
 
-          <input
-            name="patientId"
-            placeholder="Patient ID"
-            value={formData.patient.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+  {patients.map((patient) => (
+    <option key={patient.id} value={patient.id}>
+      {patient.userName}
+    </option>
+  ))}
+</select>
 
-          <input
-            name="doctorId"
-            placeholder="Doctor ID"
-            value={formData.doctor.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+         <select
+  name="doctorId"
+  value={formData.doctorId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Doctor</option>
+
+  {doctors.map((doctor) => (
+    <option key={doctor.id} value={doctor.id}>
+      {doctor.userName}
+    </option>
+  ))}
+</select>
 
           <input
             type="date"
@@ -250,8 +284,8 @@ const Appointments = () => {
               <tr key={a.id} className="border-b text-center">
 
                 <td className="p-4">{a.id}</td>
-                <td className="p-4">{a.patient?.id}</td>
-                <td className="p-4">{a.doctor?.id}</td>
+              <td className="p-4">{a.patientName}</td>
+              <td className="p-4">{a.doctorName}</td>
                 <td className="p-4">{a.appointmentDate}</td>
                 <td className="p-4">{a.appointmentTime}</td>
                 <td className="p-4">{a.status}</td>

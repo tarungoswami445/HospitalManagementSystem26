@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { getAllPatients } from "../../services/patientService";
+import { getAllDoctors } from "../../services/doctorService";
+import { getRooms } from "../../services/roomService";
+import { getAllBeds } from "../../services/bedService";
 
 import {
   getAllAdmissions,
@@ -14,19 +18,41 @@ const Admissions = () => {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState([]);
+const [beds, setBeds] = useState([]);
+const [patients, setPatients] = useState([]);
+const [doctors, setDoctors] = useState([]);
 
   const [formData, setFormData] = useState({
 
     admitDate: "",
     dischargeDate: "",
     status: "",
-
-    patient: { id: "" },
-    doctor: { id: "" },
-    room: { id: "" },
-    bed: { id: "" }
+patientId: "",
+doctorId: "",
+roomId: "",
+bedId: ""
 
   });
+  const loadPatients = async () => {
+  const res = await getAllPatients();
+  setPatients(res.data);
+};
+
+const loadDoctors = async () => {
+  const res = await getAllDoctors();
+  setDoctors(res.data);
+};
+
+const loadRooms = async () => {
+  const res = await getRooms();
+  setRooms(res.data);
+};
+
+const loadBeds = async () => {
+  const res = await getAllBeds();
+  setBeds(res.data);
+};
 
   // LOAD
   const loadAdmissions = async () => {
@@ -40,42 +66,38 @@ const Admissions = () => {
     }
   };
 
-  useEffect(() => {
-    loadAdmissions();
-  }, []);
+ useEffect(() => {
+  loadAdmissions();
+  loadPatients();
+  loadDoctors();
+  loadRooms();
+  loadBeds();
+}, []);
 
   // SEARCH
-  const filteredAdmissions = admissions.filter((a) => {
+const filteredAdmissions = admissions.filter((a) => {
 
-    const s = search.toLowerCase();
+  const s = search.toLowerCase();
 
-    return (
-      a.id?.toString().includes(s) ||
-      a.status?.toLowerCase().includes(s) ||
-      a.patient?.id?.toString().includes(s) ||
-      a.doctor?.id?.toString().includes(s) ||
-      a.room?.id?.toString().includes(s) ||
-      a.bed?.id?.toString().includes(s) ||
-      a.admitDate?.includes(s)
-    );
-  });
+  return (
+    a.id?.toString().includes(s) ||
+    a.status?.toLowerCase().includes(s) ||
+    a.patientName?.toLowerCase().includes(s) ||
+    a.doctorName?.toLowerCase().includes(s) ||
+    a.roomNumber?.toLowerCase().includes(s) ||
+    a.bedNumber?.toLowerCase().includes(s)
+  );
+});
 
   // HANDLE INPUT
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    if (name === "patientId") {
-      setFormData({ ...formData, patient: { id: value } });
-    } else if (name === "doctorId") {
-      setFormData({ ...formData, doctor: { id: value } });
-    } else if (name === "roomId") {
-      setFormData({ ...formData, room: { id: value } });
-    } else if (name === "bedId") {
-      setFormData({ ...formData, bed: { id: value } });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
 
   // SUBMIT (ADD + UPDATE)
   const handleSubmit = async (e) => {
@@ -94,15 +116,15 @@ const Admissions = () => {
       setEditingId(null);
       loadAdmissions();
 
-      setFormData({
-        admitDate: "",
-        dischargeDate: "",
-        status: "",
-        patient: { id: "" },
-        doctor: { id: "" },
-        room: { id: "" },
-        bed: { id: "" }
-      });
+    setFormData({
+  admitDate: "",
+  dischargeDate: "",
+  status: "",
+  patientId: "",
+  doctorId: "",
+  roomId: "",
+  bedId: ""
+});
 
     } catch (error) {
       console.log(error);
@@ -123,18 +145,19 @@ const Admissions = () => {
 
   // EDIT
   const handleEdit = (a) => {
-    setEditingId(a.id);
 
-    setFormData({
-      admitDate: a.admitDate,
-      dischargeDate: a.dischargeDate,
-      status: a.status,
-      patient: { id: a.patient?.id || "" },
-      doctor: { id: a.doctor?.id || "" },
-      room: { id: a.room?.id || "" },
-      bed: { id: a.bed?.id || "" }
-    });
-  };
+  setEditingId(a.id);
+
+  setFormData({
+    admitDate: a.admitDate,
+    dischargeDate: a.dischargeDate,
+    status: a.status,
+    patientId: a.patientId,
+    doctorId: a.doctorId,
+    roomId: a.roomId,
+    bedId: a.bedId
+  });
+};
 
   if (loading) {
     return <p className="p-6">Loading admissions...</p>;
@@ -165,37 +188,65 @@ const Admissions = () => {
 
         <div className="grid grid-cols-2 gap-4">
 
-          <input
-            name="patientId"
-            placeholder="Patient ID"
-            value={formData.patient.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+        <select
+  name="patientId"
+  value={formData.patientId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Patient</option>
 
-          <input
-            name="doctorId"
-            placeholder="Doctor ID"
-            value={formData.doctor.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+  {patients.map((patient) => (
+    <option key={patient.id} value={patient.id}>
+      {patient.userName}
+    </option>
+  ))}
+</select>
 
-          <input
-            name="roomId"
-            placeholder="Room ID"
-            value={formData.room.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+         <select
+  name="doctorId"
+  value={formData.doctorId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Doctor</option>
 
-          <input
-            name="bedId"
-            placeholder="Bed ID"
-            value={formData.bed.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+  {doctors.map((doctor) => (
+    <option key={doctor.id} value={doctor.id}>
+      {doctor.userName}
+    </option>
+  ))}
+</select>
+
+         <select
+  name="roomId"
+  value={formData.roomId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Room</option>
+
+  {rooms.map((room) => (
+    <option key={room.id} value={room.id}>
+      Room {room.roomNumber}
+    </option>
+  ))}
+</select>
+
+         <select
+  name="bedId"
+  value={formData.bedId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+>
+  <option value="">Select Bed</option>
+
+  {beds.map((bed) => (
+    <option key={bed.id} value={bed.id}>
+      {bed.bedNumber}
+    </option>
+  ))}
+</select>
 
           <input
             type="date"
@@ -255,10 +306,10 @@ const Admissions = () => {
               <tr key={a.id} className="border-b text-center">
 
                 <td className="p-4">{a.id}</td>
-                <td className="p-4">{a.patient?.id}</td>
-                <td className="p-4">{a.doctor?.id}</td>
-                <td className="p-4">{a.room?.id}</td>
-                <td className="p-4">{a.bed?.id}</td>
+                <td className="p-4">{a.patientName}</td>
+                <td className="p-4">{a.doctorName}</td>
+                <td className="p-4">{a.roomNumber}</td>
+                <td className="p-4">{a.bedNumber}</td>
                 <td className="p-4">{a.status}</td>
 
                 <td className="p-4 flex gap-2 justify-center">

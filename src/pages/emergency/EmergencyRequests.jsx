@@ -3,24 +3,32 @@ import { useEffect, useState } from "react";
 import {
   getAllEmergencyRequests,
   saveEmergencyRequest,
-  deleteEmergencyRequest
+  deleteEmergencyRequest,
+  updateEmergencyRequest,
+  getAllPatients
 } from "../../services/emergencyService";
 
 const EmergencyRequests = () => {
 
   const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState(null);
+const [patients, setPatients] = useState([]);
 
   const [formData, setFormData] = useState({
-
-    emergencyLevel: "",
-    message: "",
-    status: "",
-
-    patient: {
-      id: ""
-    }
-
-  });
+  patientId: "",
+  emergencyLevel: "",
+  message: "",
+  status: ""
+});
+const loadPatients = async () => {
+  try {
+    const response = await getAllPatients();
+    setPatients(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // Load Requests
 
@@ -39,68 +47,87 @@ const EmergencyRequests = () => {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
 
-    loadRequests();
+  loadRequests();
+  loadPatients();
 
-  }, []);
+}, []);
+
+  const filteredRequests = requests.filter((r) => {
+
+  const s = search.toLowerCase();
+
+  return (
+    r.patientName?.toLowerCase().includes(s) ||
+    r.emergencyLevel?.toLowerCase().includes(s) ||
+    r.status?.toLowerCase().includes(s) ||
+    r.message?.toLowerCase().includes(s)
+  );
+});
+const handleEdit = (request) => {
+
+  setEditingId(request.id);
+
+  setFormData({
+    patientId: request.patientId,
+    emergencyLevel: request.emergencyLevel,
+    message: request.message,
+    status: request.status
+  });
+};
+
 
   // Handle Change
 
   const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    const { name, value } = e.target;
+  setFormData({
+    ...formData,
+    [name]: value
+  });
+};
+// Save
 
-    if (name === "patientId") {
+const handleSubmit = async (e) => {
 
-      setFormData({
-        ...formData,
-        patient: {
-          id: value
-        }
-      });
+  e.preventDefault();
+
+  try {
+
+    if (editingId) {
+
+      await updateEmergencyRequest(
+        editingId,
+        formData
+      );
+
+      alert("Emergency Request Updated");
 
     } else {
-
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
-
-  // Save
-
-  const handleSubmit = async (e) => {
-
-    e.preventDefault();
-
-    try {
 
       await saveEmergencyRequest(formData);
 
       alert("Emergency Request Added");
-
-      loadRequests();
-
-      setFormData({
-
-        emergencyLevel: "",
-        message: "",
-        status: "",
-
-        patient: {
-          id: ""
-        }
-
-      });
-
-    } catch (error) {
-
-      console.log(error);
     }
-  };
 
+    loadRequests();
+
+    setEditingId(null);
+
+    setFormData({
+      patientId: "",
+      emergencyLevel: "",
+      message: "",
+      status: ""
+    });
+
+  } catch (error) {
+
+    console.log(error);
+  }
+};
   // Delete
 
   const handleDelete = async (id) => {
@@ -126,6 +153,13 @@ const EmergencyRequests = () => {
       <h1 className="text-4xl font-bold mb-6">
         Emergency Requests
       </h1>
+      <input
+  type="text"
+  placeholder="Search emergency requests..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full p-3 border rounded-lg mb-4"
+/>
 
       {/* FORM */}
 
@@ -136,14 +170,27 @@ const EmergencyRequests = () => {
 
         <div className="grid grid-cols-2 gap-4">
 
-          <input
-            type="number"
-            name="patientId"
-            placeholder="Patient ID"
-            value={formData.patient.id}
-            onChange={handleChange}
-            className="border p-3 rounded-lg"
-          />
+
+<select
+  name="patientId"
+  value={formData.patientId}
+  onChange={handleChange}
+  className="border p-3 rounded-lg"
+  required
+>
+  <option value="">
+    Select Patient
+  </option>
+
+  {patients.map((patient) => (
+    <option
+      key={patient.id}
+      value={patient.id}
+    >
+      {patient.userName} (Patient ID: {patient.id})
+    </option>
+  ))}
+</select>
 
           <input
             type="text"
@@ -173,12 +220,14 @@ const EmergencyRequests = () => {
           className="border p-3 rounded-lg w-full mt-4"
         />
 
-        <button
-          type="submit"
-          className="bg-red-500 text-white px-6 py-3 rounded-lg mt-5"
-        >
-          Send Emergency Request
-        </button>
+       <button
+  type="submit"
+  className="bg-red-500 text-white px-6 py-3 rounded-lg mt-5"
+>
+  {editingId
+    ? "Update Emergency Request"
+    : "Send Emergency Request"}
+</button>
 
       </form>
 
@@ -205,7 +254,7 @@ const EmergencyRequests = () => {
 
           <tbody>
 
-            {requests.map((request) => (
+           {filteredRequests.map((request) => (
 
               <tr
                 key={request.id}
@@ -216,9 +265,9 @@ const EmergencyRequests = () => {
                   {request.id}
                 </td>
 
-                <td className="p-4">
-                  {request.patient?.id}
-                </td>
+               <td className="p-4">
+                {request.patientName}
+                    </td>
 
                 <td className="p-4">
                   {request.emergencyLevel}
@@ -232,18 +281,25 @@ const EmergencyRequests = () => {
                   {request.status}
                 </td>
 
-                <td className="p-4">
+<td className="p-4">
 
-                  <button
-                    onClick={() =>
-                      handleDelete(request.id)
-                    }
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg"
-                  >
-                    Delete
-                  </button>
+  <button
+    onClick={() => handleEdit(request)}
+    className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2"
+  >
+    Edit
+  </button>
 
-                </td>
+  <button
+    onClick={() =>
+      handleDelete(request.id)
+    }
+    className="bg-red-500 text-white px-4 py-2 rounded-lg"
+  >
+    Delete
+  </button>
+
+</td>
 
               </tr>
 
