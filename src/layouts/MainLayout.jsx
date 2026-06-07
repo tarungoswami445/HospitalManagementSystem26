@@ -3,12 +3,13 @@ import { Outlet } from "react-router-dom";
 
 import Sidebar from "../components/sidebar/Sidebar";
 import Navbar from "../components/navbar/Navbar";
+import Footer from "../components/footer/Footer";
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex bg-gray-100 min-h-screen overflow-hidden">
+    <div className="flex bg-gray-100 min-h-screen overflow-x-hidden">
 
       {/* SIDEBAR */}
       <Sidebar
@@ -18,10 +19,10 @@ const MainLayout = () => {
 
       {/* MAIN CONTENT */}
       <div
-        className={`flex-1 transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-20"
-        }`}
-      >
+  className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+    sidebarOpen ? "ml-64" : "ml-20"
+  }`}
+>
 
         {/* NAVBAR */}
         <Navbar
@@ -30,9 +31,11 @@ const MainLayout = () => {
         />
 
         {/* PAGE CONTENT */}
-        <main className="p-6">
-          <Outlet />   {/* 🔥 THIS IS THE FIX */}
-        </main>
+      <main className="flex-1 p-6">
+  <Outlet />
+</main>
+
+<Footer />
 
       </div>
     </div>
